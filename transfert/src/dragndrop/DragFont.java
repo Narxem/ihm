@@ -43,6 +43,7 @@ public class DragFont extends JFrame {
 		// JFormattedTextField 1
 		text1.setDragEnabled(true);
 		text1.setFont(new Font("liberation", Font.BOLD | Font.ITALIC, 17));
+		
 		this.add(this.text1);
 		
 		
