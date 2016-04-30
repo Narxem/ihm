@@ -58,14 +58,9 @@ public class MagneticGuides extends JFrame {
 					public void action() {
 						p = getPoint() ;
 						draggedShape = getShape() ;
-						if (draggedShape.hasTag(hTag)) {
+						if (draggedShape.hasTag(hTag) || draggedShape.hasTag(vTag)) {
 							draggedShape.removeTag(hTag);
-							draggedShape.getParent().removeChild(draggedShape);
-							draggedShape.translateTo(p.getX(), p.getY());
-						}
-						if (draggedShape.hasTag(vTag)) {
 							draggedShape.removeTag(vTag);
-							draggedShape.getParent().removeChild(draggedShape);
 							draggedShape.translateTo(p.getX(), p.getY());
 						}
 					}
@@ -73,7 +68,7 @@ public class MagneticGuides extends JFrame {
 			
 				// #####################################################################
 				// Guides Creation
-				Transition createHGuide = new Press(BUTTON1) {
+				Transition createHGuide = new Press(BUTTON2) {
 					public void action() {
 						p = getPoint() ;
 						MagneticGuide guide = new MagneticGuide(p.getY(), HORIZONTAL, canvas);
@@ -94,12 +89,22 @@ public class MagneticGuides extends JFrame {
 					public void action() {
 						p = getPoint();
 						draggedShape = getShape();
+						for (CShape shape : hTag.getFilledShapes()) {
+							if (shape.contains(shape.getCenterX(), draggedShape.getCenterY()) != null) {
+								draggedShape.addChild(shape);
+							}
+						}
 					}
 				};
 				Transition pressOnVGuide = new PressOnTag(vGuideTag, BUTTON1, ">> vDrag") {
 					public void action() {
 						p = getPoint();
 						draggedShape = getShape();
+						for (CShape shape : vTag.getFilledShapes()) {
+							if (shape.contains(draggedShape.getCenterX(), shape.getCenterY()) != null) {
+								draggedShape.addChild(shape);
+							}
+						}
 					}
 				};
 			} ;
@@ -120,15 +125,13 @@ public class MagneticGuides extends JFrame {
 						for (CShape shapeH : hGuideTag.getFilledShapes()) {
 							if (draggedShape.contains(draggedShape.getCenterX(), shapeH.getMinY()) != null) {
 								draggedShape.addTag(hTag);
-								shapeH.addChild(draggedShape);
-								draggedShape.translateBy(0, shapeH.getCenterY() - draggedShape.getCenterY());
+								draggedShape.translateTo(draggedShape.getCenterX(), shapeH.getCenterY());
 							}
 						}
 						for (CShape shapeV : vGuideTag.getFilledShapes()) {
 							if (draggedShape.contains(shapeV.getMinX(), draggedShape.getCenterY()) != null) {
 								draggedShape.addTag(vTag);
-								shapeV.addChild(draggedShape);
-								draggedShape.translateBy(shapeV.getCenterX() - draggedShape.getCenterX(), 0);
+								draggedShape.translateTo(shapeV.getCenterX(), draggedShape.getCenterY());
 							}
 						}
 					}
@@ -143,7 +146,14 @@ public class MagneticGuides extends JFrame {
 						p = q ;
 					}
 				} ;
-				Transition release = new Release(BUTTON1, ">> start") {} ;
+				Transition release = new Release(BUTTON1, ">> start") {
+					public void action() {
+						for (CShape shape : draggedShape.getChildren()) {
+							draggedShape.removeChild(shape);
+							shape.translateTo(shape.getCenterX(), draggedShape.getCenterY());
+						}
+					}
+				} ;
 			};
 			public State vDrag = new State() {
 				Transition drag = new Drag(BUTTON1) {
@@ -153,7 +163,14 @@ public class MagneticGuides extends JFrame {
 						p = q ;
 					}
 				} ;
-				Transition release = new Release(BUTTON1, ">> start") {} ;
+				Transition release = new Release(BUTTON1, ">> start") {
+					public void action() {
+						for (CShape shape : draggedShape.getChildren()) {
+							draggedShape.removeChild(shape);
+							shape.translateTo(draggedShape.getCenterX(), shape.getCenterY());
+						}
+					}
+				} ;
 			};
 			
 
