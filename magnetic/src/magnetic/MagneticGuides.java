@@ -35,6 +35,7 @@ public class MagneticGuides extends JFrame {
 	private CExtensionalTag vTag;
 	private CExtensionalTag vGuideTag;
 	private CStateMachine state;
+	private boolean hiddenGuides = false;
 
 	public MagneticGuides(String title, int width, int height) {
 		super(title) ;
@@ -56,6 +57,20 @@ public class MagneticGuides extends JFrame {
 			private CShape draggedShape ;
 
 			public State start = new State() {
+				Transition hideShowGuide = new Press(BUTTON1, CONTROL_SHIFT) {
+					public void action() {
+						if (hiddenGuides) {
+							hGuideTag.setTransparencyOutline(1.f);
+							vGuideTag.setTransparencyOutline(1.f);
+							System.out.println("show guides");
+						} else {
+							hGuideTag.setTransparencyOutline(0.f);
+							vGuideTag.setTransparencyOutline(0.f);
+							System.out.println("hide guides");
+						}
+						hiddenGuides = !hiddenGuides;
+					}
+				};
 				Transition deleteHGuide = new PressOnTag(hGuideTag, BUTTON1, CONTROL) {
 					public void action() {
 						CShape deletedShape = (CShape) getShape();
@@ -64,7 +79,6 @@ public class MagneticGuides extends JFrame {
 								shape.removeTag(hTag);
 							}
 						}
-						canvas.removeShape(deletedShape);
 					}
 				};
 				Transition deleteVGuide = new PressOnTag(vGuideTag, BUTTON1, CONTROL) {
@@ -75,7 +89,6 @@ public class MagneticGuides extends JFrame {
 								shape.removeTag(hTag);
 							}
 						}
-						canvas.removeShape(deletedShape);
 					}
 				};
 				Transition pressOnObject = new PressOnTag(oTag, BUTTON1, ">> oDrag") {
@@ -96,6 +109,8 @@ public class MagneticGuides extends JFrame {
 					public void action() {
 						p = getPoint() ;
 						MagneticGuide guide = new MagneticGuide(p.getY(), HORIZONTAL, canvas);
+						if (hiddenGuides)
+							guide.getGuide().setTransparencyOutline(0.f);
 						guide.addTagToGuide(hGuideTag);
 					}
 				};
@@ -103,6 +118,8 @@ public class MagneticGuides extends JFrame {
 					public void action() {
 						p = getPoint() ;
 						MagneticGuide guide = new MagneticGuide(p.getX(), VERTICAL, canvas);
+						if (hiddenGuides)
+							guide.getGuide().setTransparencyOutline(0.f);
 						guide.addTagToGuide(vGuideTag);
 					}
 				};

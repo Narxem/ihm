@@ -47,5 +47,9 @@ public class MagneticGuide extends CExtensionalTag {
 		guide.addTag(tag);
 	}
 	
+	public CSegment getGuide() {
+		return guide;
+	}
+	
 	public int getType() { return type; }
 }
