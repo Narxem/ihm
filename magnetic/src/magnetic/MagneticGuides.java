@@ -4,6 +4,8 @@ import static magnetic.MagneticGuide.VERTICAL;
 
 import java.awt.Color ;
 import java.awt.geom.Point2D ;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JFrame ;
 
@@ -54,6 +56,28 @@ public class MagneticGuides extends JFrame {
 			private CShape draggedShape ;
 
 			public State start = new State() {
+				Transition deleteHGuide = new PressOnTag(hGuideTag, BUTTON1, CONTROL) {
+					public void action() {
+						CShape deletedShape = (CShape) getShape();
+						for (CShape shape : hTag.getFilledShapes()) {
+							if (shape.contains(deletedShape.getCenterX(), shape.getCenterY()) != null) {
+								shape.removeTag(hTag);
+							}
+						}
+						canvas.removeShape(deletedShape);
+					}
+				};
+				Transition deleteVGuide = new PressOnTag(vGuideTag, BUTTON1, CONTROL) {
+					public void action() {
+						CShape deletedShape = (CShape) getShape();
+						for (CShape shape : vTag.getFilledShapes()) {
+							if (shape.contains(shape.getCenterX(), deletedShape.getCenterY()) != null) {
+								shape.removeTag(hTag);
+							}
+						}
+						canvas.removeShape(deletedShape);
+					}
+				};
 				Transition pressOnObject = new PressOnTag(oTag, BUTTON1, ">> oDrag") {
 					public void action() {
 						p = getPoint() ;
@@ -84,7 +108,7 @@ public class MagneticGuides extends JFrame {
 				};
 				
 				// #####################################################################
-				// Move guides
+				// click on guides
 				Transition pressOnHGuide = new PressOnTag(hGuideTag, BUTTON1, ">> hDrag") {
 					public void action() {
 						p = getPoint();
@@ -92,6 +116,7 @@ public class MagneticGuides extends JFrame {
 						for (CShape shape : hTag.getFilledShapes()) {
 							if (shape.contains(shape.getCenterX(), draggedShape.getCenterY()) != null) {
 								draggedShape.addChild(shape);
+								shape.translateTo(shape.getCenterX(), draggedShape.getCenterY());
 							}
 						}
 					}
@@ -103,6 +128,7 @@ public class MagneticGuides extends JFrame {
 						for (CShape shape : vTag.getFilledShapes()) {
 							if (shape.contains(draggedShape.getCenterX(), shape.getCenterY()) != null) {
 								draggedShape.addChild(shape);
+								shape.translateTo(draggedShape.getCenterX(), shape.getCenterY());
 							}
 						}
 					}
@@ -110,7 +136,8 @@ public class MagneticGuides extends JFrame {
 			} ;
 
 			
-			
+			// #########################################################################################
+			// Move non-guide objects
 			public State oDrag = new State() {
 				Transition drag = new Drag(BUTTON1) {
 					public void action() {
@@ -138,6 +165,8 @@ public class MagneticGuides extends JFrame {
 				} ;
 			} ;
 			
+			// ##################################################################################################
+			// Drag guides
 			public State hDrag = new State() {
 				Transition drag = new Drag(BUTTON1) {
 					public void action() {
@@ -148,9 +177,15 @@ public class MagneticGuides extends JFrame {
 				} ;
 				Transition release = new Release(BUTTON1, ">> start") {
 					public void action() {
-						for (CShape shape : draggedShape.getChildren()) {
-							draggedShape.removeChild(shape);
-							shape.translateTo(shape.getCenterX(), draggedShape.getCenterY());
+						try {
+							List<CShape> shapes = new LinkedList<>();
+							shapes.addAll(draggedShape.getChildren());
+							for (CShape shape : shapes) {
+								draggedShape.removeChild(shape);
+								shape.translateTo(shape.getCenterX(), draggedShape.getCenterY());
+							}
+						} catch (NullPointerException e) {
+							// No child for the current guide : do nothing
 						}
 					}
 				} ;
@@ -165,9 +200,15 @@ public class MagneticGuides extends JFrame {
 				} ;
 				Transition release = new Release(BUTTON1, ">> start") {
 					public void action() {
-						for (CShape shape : draggedShape.getChildren()) {
-							draggedShape.removeChild(shape);
-							shape.translateTo(draggedShape.getCenterX(), shape.getCenterY());
+						try {
+							List<CShape> shapes = new LinkedList<>();
+							shapes.addAll(draggedShape.getChildren());
+							for (CShape shape : shapes) {
+								draggedShape.removeChild(shape);
+								shape.translateTo(draggedShape.getCenterX(), shape.getCenterY());
+							}
+						} catch (NullPointerException e) {
+							// No child for the current guide : do nothing
 						}
 					}
 				} ;
@@ -212,6 +253,16 @@ public class MagneticGuides extends JFrame {
 		MagneticGuides guides = new MagneticGuides("Magnetic guides",600,600) ;
 		for (int i=0; i<20; ++i) guides.populate() ;
 		guides.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE) ;
+		
+		// #### FOR STATE MACHINE VIZUALISATION
+		/*    /
+	   JFrame frameViz = new JFrame("visualisation");
+	   StateMachineVisualization viz = new StateMachineVisualization(guides.getStateMachine());
+	   frameViz.setContentPane(viz);
+	   frameViz.setVisible(true);
+	   frameViz.pack();
+	   
+	   /* */
 	}
 
 }
