@@ -7,6 +7,9 @@ import fr.lri.swingstates.canvas.CExtensionalTag;
 import fr.lri.swingstates.canvas.CSegment;
 import fr.lri.swingstates.canvas.Canvas;
 
+/**
+ * @author Adrien Agez
+ */
 public class MagneticGuide extends CExtensionalTag {
 
 	public static final int HORIZONTAL = 1;

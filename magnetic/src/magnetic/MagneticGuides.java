@@ -23,7 +23,7 @@ import fr.lri.swingstates.sm.transitions.Release ;
 
 /**
  * @author Nicolas Roussel (roussel@lri.fr)
- *
+ * @author Adrien Agez
  */
 public class MagneticGuides extends JFrame {
 	
